@@ -1,0 +1,348 @@
+package part2;
+
+import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+
+public class Date {
+
+	//Date's Attributes
+	private int year;
+	private int month;
+	private int day;
+
+	// Constant for months with 30 days
+	public int[] month_30 = { 4, 6, 9, 11 };
+	// Constant string array for days of the week
+	public String[] dayOfWeek = {"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
+	public int baseYear1 = 1970; //for comparison purposes
+	public int baseYear2 = 1753; //for comparison purposes
+	
+
+
+	// Default Contructor -> Today's Date
+	public Date() {
+		// Current Date with imported LocalDate class
+		LocalDate today = LocalDate.now();
+		LocalDate start = LocalDate.of(baseYear1, 1, 1);
+		// get number of days elapsed since 1970/1/1
+		int daysSince = (int) ChronoUnit.DAYS.between(start, today);
+		int year = daysToYears(daysSince,baseYear1);
+		
+		// day of year out of 365/366
+		int dayOfYear = dayOfYear(daysSince,baseYear1,year);
+		int month = calcMonth(dayOfYear,year);
+		int day = calcDay(dayOfYear,month,year);
+		
+		setDate(year,month,day);
+	}
+	// Custom Constructor -> Custom Valid Date
+		public Date(int year, int month, int day) {
+			dateValid(year, month, day); //method to check for validity
+			setDate(year, month, day);
+		}
+		
+	
+	/**Takes daysSince and calculates how many years has gone by
+	 * takes into account leap years
+	 * @param daysSince the baseYear/1/1
+	 * @param baseYear
+	 * @return Years Elapsed 
+	 */
+	private int daysToYears(int daysSince, int baseYear) {
+		int yearsElapsed=0;
+		while(daysSince>=0) {
+			if(isLeapYear(baseYear+yearsElapsed)) {
+				daysSince-=366;
+				yearsElapsed++;
+			}else {
+				daysSince-=365;
+				yearsElapsed++;
+			}
+		}
+		return yearsElapsed+baseYear-1;
+	}
+	
+	/**Getting the total days of the year using daysSince the baseYear
+	 * The number is out of 365 or 366 depending on leap year
+	 * @param daysSince
+	 * @param baseYear
+	 * @return
+	 */
+	private int dayOfYear(int daysSince, int baseYear, int year) {
+		int numberLeapYears = numberLeapYears(baseYear,year);
+		int totalDays = (365*(year-baseYear-numberLeapYears)) + (366*numberLeapYears);
+		return daysSince-totalDays+1;
+	}
+	/**
+	 * Using the day of year and year it will calculate which month the date is in
+	 * @param dayOfYear
+	 * @param year
+	 * @return
+	 */
+	private int calcMonth(int dayOfYear, int year) {
+		int elapsedDays=0;
+		int month=0;
+			while(elapsedDays<=dayOfYear) { // if it exceeds dayOfYear its at the next month
+				month++; // increase month each loop
+				if(month==2 && isLeapYear(year)==true) {
+					elapsedDays+=29; //add 29 days if its a leap year and february
+				}else if(month==2 && isLeapYear(year)==false) {
+					elapsedDays+=28; // add 28 days if its not a leap year
+				}
+				else if(month==4||month==6||month==9||month==11) {
+					elapsedDays+=30; //months with 30 add 30 
+				}else {
+					elapsedDays+=31; // all the rest add 31
+				}
+			} 
+		return month;
+	}
+	
+	/**
+	 * take the day of year, month, and year to find what day of the month it is
+	 * essentially calculates total days to end of the current month
+	 * then subtracts dayOfYear from that
+	 * @param dayOfYear
+	 * @param month
+	 * @param year
+	 * @return
+	 */
+	private int calcDay(int dayOfYear, int month, int year) {
+	int elapsedDays=0;
+	for(int i=1; i<month; i++) {
+		if(i==2 && isLeapYear(year)==true) {
+			elapsedDays+=29;
+		}else if(i==2 && isLeapYear(year)==false) {
+			elapsedDays+=28;
+		}else if(i==4||i==6||i==9||i==11) {
+			elapsedDays+=30;
+		}else {
+			elapsedDays+=31;
+		}
+	}
+		return dayOfYear-elapsedDays;
+	}
+	
+
+
+	/** Used to count how many leap years have happened 
+	 * as it has an extra day (366 instead of 365)
+	 * @param year currently
+	 * @return Count of how many leap years have elapsed
+	 */
+	private int numberLeapYears (int year1 ,int year2) {
+		int count =0;
+		for(int i = year1; i<year2; i++) {
+			if(isLeapYear(i)==true) {
+				count ++;
+			}
+		}
+		return count;
+	}
+
+	// Accessor Method to get Year
+	public int getYear() {
+		return this.year;
+	}
+
+	// Accessor Method to get Month
+	public int getMonth() {
+		return this.month;
+	}
+
+	// Accessor Method to get Day
+	public int getDay() {
+		return this.day;
+	}
+	
+	// Accessor Method to get Day of the week ~MTWTFSS
+		public String getDayOfWeek() {
+			int day=0; // starts on a monday (1753/1/1)
+			for(int i=0; i<this.daysSince(baseYear2); i++) {
+				day++;
+				if(day>6) {
+					day=0;
+				}
+			}
+			return dayOfWeek[day];
+		}
+		
+		/**
+		 * total # of days elapsed since baseYear/1/1
+		 * @param baseYear
+		 * @return number of days elapsed
+		 */
+	private int daysSince(int baseYear) {
+		int accumulatedDate=0;
+		for(int i=baseYear;i<year;i++) {
+			if(isLeapYear(i)==true) {
+				accumulatedDate+=366; //if leap year add 366
+			}else {
+				accumulatedDate+=365; //regular year add 365
+			}
+		}	
+		//adds all days of years except current one then adds how many days elapsed in current year
+		return accumulatedDate + this.calcDayOfYear();
+	}
+	
+	/**
+	 * Takes no parameters 
+	 * calculates the objects day of year out of 366/365 based on month, year, day
+	 * @return days int
+	 */
+	private int calcDayOfYear() {
+		int elapsedDays=0;
+		for(int i=1; i<this.month; i++) {
+			if(i==2 && isLeapYear(this.year)==true) {
+				elapsedDays+=29;
+			}else if(i==2 && isLeapYear(this.year)==false) {
+				elapsedDays+=28;
+			}else if(i==4||i==6||i==9||i==11) {
+				elapsedDays+=30;
+			}else {
+				elapsedDays+=31;
+			}
+		}
+		return elapsedDays+this.day-1;
+	}
+
+	// Accessor Method to return as String YYYY/MM/DD
+	public String toString() {
+		return this.year + "/" + this.month + "/" + this.day;
+	}
+
+	/**
+	 * Mutator: Sets the values of Date object
+	 * 
+	 * @param year
+	 * @param month
+	 * @param day
+	 */
+	public void setDate(int year, int month, int day) {
+		this.year = year;
+		this.month = month;
+		this.day = day;
+	}
+
+
+	/**
+	 * Method which calls on other methods to check if the date is valid
+	 * 
+	 * @param year
+	 * @param month
+	 * @param day
+	 */
+	private void dateValid(int year, int month, int day) {
+		checkYear(year);
+		checkMonth(month);
+		checkDay(year, month, day);
+	}
+/** 
+ * Checks if the year is greater than 1753 given year input
+ * @param year
+ */
+	private void checkYear(int year) {
+		if (year < 1753) {
+			throw new IllegalArgumentException("The Year must be 1753 or later");
+		}
+	}
+
+	private void checkMonth(int month) {
+		if (month < 1 || month > 12) {
+			throw new IllegalArgumentException("The Month must be within the range of 1-12");
+		}
+	}
+/**
+ * Based on the year, month and if it is leap year or not
+ * The method checks if the day is legal
+ * @param year
+ * @param month
+ * @param day
+ */
+	private void checkDay(int year, int month, int day) {
+		// Check if it is within 1-31
+		if (day < 1 || day > 31) {
+			throw new IllegalArgumentException("The Day must be within the range of 1-31");
+		} else {
+			// Checks leap year for Febraury 29th existence
+			if (month == 2 && isLeapYear(year)==true && day > 29) {
+				throw new IllegalArgumentException("The Day must be within the range of 1-29");
+			} else if (month == 2 && isLeapYear(year)==false && day > 28) {
+				throw new IllegalArgumentException("The Day must be within the range of 1-28");
+			} else {
+				// checks if day is greater than 30 if there are only 30 days in that month
+				for (int i = 0; i < month_30.length; i++) {
+					if (month == month_30[i] && day > 30) {
+						throw new IllegalArgumentException("The Day must be within the range of 1-30");
+					}
+				}
+			}
+		}
+	}
+
+/** Takes any year and determines if it is a leapyear or not
+ * 
+ * @param year
+ * @return boolean, true if it is a leap year false if not
+ */
+	private boolean isLeapYear(int year) {
+		boolean isLeap = false;
+		if(year%4!=0) { //if not divisible by 4 then cant be leap year
+		}else if (year%400 ==0) { //if divisible by 4 and 400 then it's a leap year
+			isLeap=true;
+		}else if (year%100==0) { //if divisible by 4 and 100 then not a leap year
+			isLeap=false;
+		}else {
+			isLeap=true; //purely divisible by 4 not 100 or 400
+		}
+		return isLeap;
+	}
+	//Checks year of entire object takes no input returns boolean
+	public boolean isLeapYear() {
+		boolean isLeap = false;
+		if(year%4!=0 ) {
+		}else if (year%400 ==0) {
+			isLeap=true;
+		}else if (year%100==0) {
+			isLeap=false;
+		}else {
+			isLeap=true;
+		}
+		return isLeap;
+	}
+	
+	/** Method that takes no input but increases the date object by 1 day
+	 * accounts for new months, new years, leap years etc.
+	 */
+	public void nextDay() {
+		//Any day that isn't at the end of any month
+		if(day<28){
+			day++;
+		}
+		//Checks new year case then resets to Jan 1st and increase year
+		else if(month==12 && day==31) {
+			month=1;
+			day=1;
+			year++;
+		}else if (isLeapYear()==true && month==2 && day == 28 ) { 
+			day++;
+		} else if (month == 2 && isLeapYear()==false && day == 28) {
+			this.day=1;
+			this.month++;
+		} else { //if it's not a new year or february case then checks other months
+			
+			for (int i = 0; i < month_30.length; i++) {
+				//checks months that have 30 days for end of month case
+				if (month == month_30[i] && day == 30) {
+					day=1;
+					month++;
+				}else if (day==31) { //checks rest of end of month cases
+					day=1;
+					month++;
+				}
+			}
+			
+		}
+	}
+
+}

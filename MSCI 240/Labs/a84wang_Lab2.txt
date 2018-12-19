@@ -1,0 +1,237 @@
+package Lab2;
+/**
+ * Author: Amy Wang
+ * Date: October 1st 2018
+ * Description: Lots of methods based on Arraylists, Stacks, and Queues
+ * 				Lab 2 
+ */
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Stack;
+import java.util.Queue;
+
+public class a84wang_Lab2 {
+
+
+		public static void main(String[] args) {
+			//ARRAYLIST PROBLEMS
+			
+			//For Problem 1
+			ArrayList<Integer> p1 = new ArrayList<>(Arrays.asList(18,14,29,12,7,25));
+			System.out.println("P1 - Range is: " +range(p1));
+			
+			// For Problem 2
+			ArrayList<String> p2 = new ArrayList<>(Arrays.asList("how","are","you?"));
+			stutter(p2);
+			System.out.println("P2- Output: " + p2);
+			
+			//For Problem 3
+			ArrayList<String> p3 = new ArrayList<>(Arrays.asList("score","four","seven","and","ago", "years"));
+			ArrayList<String> p3_2 = new ArrayList<>(Arrays.asList("be","to","not","or","be", "to","Hamlet"));
+			switchPair(p3);
+			switchPair(p3_2);
+			System.out.println("P3- Output: " + p3 + " || " + p3_2);
+			
+			// STACK AND QUEUES PROBLEMS
+			//Problem 1
+			Stack<Integer> p1stack = new Stack <>();
+			p1stack.push(1);
+			p1stack.push(2);
+			p1stack.push(3);
+			p1stack.push(4);
+			p1stack.push(5);
+			System.out.println("P1 (Stack)- Original: " + p1stack + " || Copied:" + copyStack(p1stack));
+			
+			//Problem 2
+			Stack<Integer> p2stack_a = new Stack <>();
+			p2stack_a.push(1);
+			p2stack_a.push(2);
+			p2stack_a.push(3);
+			p2stack_a.push(4);
+			p2stack_a.push(5);
+			Stack<Integer> p2stack_b = new Stack <>();
+			p2stack_b.push(1);
+			p2stack_b.push(2);
+			p2stack_b.push(3);
+			p2stack_b.push(2);
+			p2stack_b.push(5);
+			System.out.println("P2 (Stack)- Stacks identical: " + equals(p2stack_a,p2stack_b));
+			System.out.println("P2 (Stack)- Stacks used: A" + p2stack_a + "|| B "+ p2stack_b);
+		
+			//Problem 3
+			Queue<Integer> p3queue = new LinkedList<>(Arrays.asList(3,5,4,17,6,83,1,84,16,37));
+			rearrange(p3queue);
+			System.out.println("P3 (Queue)- Rearranged: "+p3queue);
+			
+			//Problem 4
+			Queue<Integer> p4queue_A = new LinkedList<>(Arrays.asList(3,4,5,6,7,8,9,10));
+			Queue<Integer> p4queue_B = new LinkedList<>(Arrays.asList(3,4,5,6,7,8,9,10,12));
+			System.out.println("P4 (Queue)- Is Consecutive: "+isConsecutive(p4queue_A)+ " || Queue: "+ p4queue_A);
+			System.out.println("P4 (Queue)- Is Consecutive: "+isConsecutive(p4queue_B)+ " || Queue: "+ p4queue_B);
+		}
+		/**
+		 * Takes arraylist and finds the highest value, lowest value
+		 * subtracts them then add 1 to get range
+		 * @param p1
+		 * @return
+		 */
+		private static int range(ArrayList<Integer> p1) {
+		int range = 0;
+		if(p1.isEmpty()) {
+			return range;
+		}else {
+			int high=0;
+			int low=p1.get(0);
+			for(int i=0; i<p1.size(); i++) {
+				if(p1.get(i)>high) {
+					high=p1.get(i);
+				}else if(p1.get(i)<low) {
+					low=p1.get(i);
+				}
+			}
+			range = high-low+1;
+			return range;
+		}
+		}
+		
+		/**
+		 * Get an arraylist of strings duplicate the values and add them to the arraylist
+		 * @param p2
+		 */
+		private static void stutter(ArrayList<String> p2) {
+			for(int i =0; i<p2.size();i++) {
+				p2.add(i,p2.get(i));
+				i++;
+			}
+		}
+
+
+		
+		/**
+		 * Takes 2 stacks and compares the values retaining order
+		 * @param a
+		 * @param b
+		 * @return true if stacks are equal false if not
+		 */
+		private static boolean equals(Stack<Integer> a, Stack<Integer> b) {
+			boolean isEqual = true;
+			Stack<Integer> copy = copyStack(a);
+			int [] tempA = new int [copy.size()];
+			int count =0;
+			
+			while(!a.isEmpty()) {
+				int tempB=b.pop();
+				if(a.pop()!=tempB) {
+					isEqual=false;
+				}
+				b.push(tempB);
+			}
+			while(!copy.isEmpty()) {
+				tempA[count]=copy.pop();
+				count++;
+			}
+			for(int i=tempA.length-1;i>=0;i--) {
+				a.push(tempA[i]);
+			}
+			return isEqual;
+			
+		}
+
+		/**
+		 * Takes a stack of integers and copies it to another stack
+		 * retain order of copied and original
+		 * @param p1stack
+		 * @return
+		 */
+		private static Stack<Integer> copyStack(Stack<Integer> p1stack) {
+			Stack <Integer> copiedStack = new Stack <>();
+			int [] temp = new int [p1stack.size()];
+			int count =0;
+			while(!p1stack.isEmpty()) {
+				temp[count]=p1stack.pop();
+				count++;
+			}
+			for(int j=temp.length-1; j>=0;j--) {
+				p1stack.push(temp[j]);
+				copiedStack.push(temp[j]);
+			}
+			return copiedStack;
+		}
+
+		/**
+		 * Get an arraylist string and switch each pair unless
+		 * the list is an odd number, then do not switch the last value
+		 * @param p3
+		 */
+		private static void switchPair(ArrayList<String> p3) {
+			for(int i=0;i<p3.size(); i++) {
+				if(p3.size()-i==1){
+					//do nothing
+				}else {
+					String temp;
+					temp=p3.get(i);
+					p3.set(i,p3.get(i+1));
+					p3.set(i+1,temp);
+				}
+				i++;
+			}
+		}
+		/**
+		 * Takes queue as parameter 
+		 * adds all even numbers to an even queue
+		 * adds all odd numbers to an odd queue
+		 * add even stack then odd stack to original stack
+		 * puts all evens first in order then odds
+		 * @param p3queue
+		 */
+		private static void rearrange(Queue<Integer> p3queue) {
+			Queue<Integer> even = new LinkedList<>();
+			Queue<Integer> odd = new LinkedList<>();
+			
+			while(!p3queue.isEmpty()) {
+				int compare=p3queue.remove();
+				if(compare%2==0) {
+					even.add(compare);
+				}else {
+					odd.add(compare);
+				}
+			}
+			
+			while(!even.isEmpty()) {
+				p3queue.add(even.remove());
+			}
+			while(!odd.isEmpty()) {
+				p3queue.add(odd.remove());
+			}
+			
+		}
+
+
+		/**
+		 * Takes a queue and checks if it is consecutive either up or down
+		 * @param p4queue
+		 * @return true if it is found to be consecutive false if not
+		 */
+		private static boolean isConsecutive(Queue<Integer> p4queue) {
+			boolean isConsecutive =true;
+			int [] tempA = new int [p4queue.size()];
+			int count=0;
+			tempA[count]=p4queue.remove();//add the queue value to aux. storage
+			
+			while(!p4queue.isEmpty()) {
+				if(tempA[count]==(p4queue.peek()-1)||tempA[count]==(p4queue.peek()+1)) { //check if value is either 1 up or 1 down
+					//stays true
+				}else{
+					isConsecutive=false;
+				}
+				count++;
+				tempA[count]=p4queue.remove();
+			}
+			
+			for(int i=0;i<tempA.length;i++) {
+				p4queue.add(tempA[i]);
+			}
+			return isConsecutive;
+		}
+}
